@@ -1,0 +1,185 @@
+= ESB 短信模块 运维部署手册
+吴涛 <wt11367@htsec.com>
+v1.0, 2018-12-05
+:toc: left
+:sectnums:
+:source-highlighter: coderay
+
+本文档描述了 `短信模块` 的 运维部署相关信息。
+
+== 约定
+
+本手册的内容都遵循以下约定：
+
+[cols="1,3", options="header"]
+|===
+|术语
+|描述
+
+|$PROJECT
+|工程（源码）所在目录
+
+|$ARTIFACT
+|部署目录
+
+|===
+
+
+== 构建
+
+=== 工程结构
+
+短信模块是一个遵循 JAVA / Maven3 规范的工程，工程结构如下：
+----
+├── config
+│   └── application.properties  # 模块运行时的配置文件
+├── doc
+│   └── apidoc.html             # 接口文档
+│   └── opdoc.html              # 运维部署手册
+├── mbg                         # mybatis 逆向工程
+├── src                         # JAVA 源代码
+├── target                      # 构建输出目录
+└── pom.xml                     # Maven 工程配置文件
+----
+
+
+== 部署
+
+=== 构建
+
+==== 环境要求
+在执行构建之前，先确保当前环境已经安装了以下软件：
+
+- *JAVA* +
+版本 6，且正确设置了 JAVA_HOME， PATH 环境变量。
+
+- *Maven* +
+版本 3
+
+==== 执行步骤
+
+- 进入工程目录
+[source,shell]
+----
+cd $PROJECT
+----
+
+- 执行 Maven 构建
+[source,shell]
+----
+mvn package
+----
+执行成功后，在 `$PROJECT/target` 下会生成 `sms-assist-1.0-SNAPSHOT.jar`。
+
+=== 部署
+
+==== 环境要求
+
+- *JAVA* +
+版本 6，且正确设置了 JAVA_HOME， PATH 环境变量。
+
+==== 部署步骤
+
+- 创建部署目录
+[source,shell]
+----
+mkdir -p $ARTIFACT
+----
+
+- 将 `sms-assist-1.0-SNAPSHOT.jar` 拷贝到 $ARTIFACT
+[source,shell]
+----
+cp $PROJECT/target/sms-assist-1.0-SNAPSHOT.jar $ARTIFACT
+----
+
+- 将工程中的配置文件拷贝到部署目录
+[source,shell]
+----
+cp -r $PROJECT/config $ARTIFACT/config
+----
+
+- 创建日志目录
+[source,shell]
+----
+mkdir $ARTIFACT/log
+----
+
+执行成功后的部署目录结构如下：
+----
+├── config
+│   └── application.properties    # 模块运行时的配置文件
+└── sms-assist-1.0-SNAPSHOT.jar   # 构建生成的 jar 包
+----
+
+==== 修改配置文件
+
+打开 `$ARTIFACT/config/application.properties` 文件，做相应修改：
+----
+server.port=2333
+spring.dataSource.url=jdbc:db2://10.10.13.13:50000/TEST:currentSchema=TEST;
+spring.dataSource.username=db2inst1
+spring.dataSource.password=admin123
+adapter.url=http://10.10.13.17:9090/sendSmg,http://10.10.13.17:9090/sendSmg
+logging.path=/data/test/log/
+----
+
+参数定义：
+[cols="2,3", options="header"]
+|===
+|参数
+|描述
+
+|server.port
+|socket 监听端口
+
+|spring.dataSource.url
+|jdbc 的链接 url
+
+|spring.dataSource.username
+|数据库用户名
+
+|spring.dataSource.password
+|数据库密码
+
+|spring.dataSource.maxActive
+|数据库连接池大小，默认 20
+
+|concurrent.pool-size
+|并发调用外部系统（如 短信适配器）时的线程池大小，默认 20
+
+|adapter.url
+|短信适配器的 http url，如果有多个适配器，用逗号分隔。目前采取的是相同权重的随机访问。
+
+|logging.path
+|日志存放的目录
+
+|===
+
+== 启动
+
+- 进入部署目录
+[source,shell]
+----
+cd $ARTIFACT
+----
+
+- 执行启动命令
+[source,shell]
+----
+nohup java -jar sms-assist-1.0-SNAPSHOT.jar >/dev/null 2>&1 &
+----
+TIP: 建议在 $ARTIFACT 目录下创建一个 startup.sh 脚本，将上面的命令写进去，这样启动就更方便了。
+
+== 关闭
+
+- 找到进程 ID
+[source,shell]
+----
+ps -ef|grep sms-assist
+----
+
+- KILL 进程
+[source,shell]
+----
+kill -9 <上一步获得的进程 ID>
+----

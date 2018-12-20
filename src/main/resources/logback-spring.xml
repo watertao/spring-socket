@@ -8,7 +8,7 @@
 　　</appender>
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_PATH}/sms-assist.log%d{yyyy-MM-dd}</FileNamePattern>
+            <FileNamePattern>${LOG_PATH}/myapp.log%d{yyyy-MM-dd}</FileNamePattern>
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
         <encoder>
