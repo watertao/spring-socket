@@ -1,11 +1,11 @@
-= ESB 短信模块 运维部署手册
-吴涛 <wt11367@htsec.com>
+= XXX接口服务 运维部署手册
+watertao <1059912278@qq.com>
 v1.0, 2018-12-05
 :toc: left
 :sectnums:
 :source-highlighter: coderay
 
-本文档描述了 `短信模块` 的 运维部署相关信息。
+本文档描述了 `XXX接口服务` 的 运维部署相关信息。
 
 == 约定
 
@@ -29,13 +29,13 @@ v1.0, 2018-12-05
 
 === 工程结构
 
-短信模块是一个遵循 JAVA / Maven3 规范的工程，工程结构如下：
+`XXX接口服务` 是一个遵循 JAVA / Maven3 规范的工程，工程结构如下：
 ----
 ├── config
 │   └── application.properties  # 模块运行时的配置文件
 ├── doc
-│   └── apidoc.html             # 接口文档
-│   └── opdoc.html              # 运维部署手册
+│   └── apidoc.adoc             # 接口文档
+│   └── opdoc.adoc              # 运维部署手册
 ├── mbg                         # mybatis 逆向工程
 ├── src                         # JAVA 源代码
 ├── target                      # 构建输出目录
@@ -51,7 +51,7 @@ v1.0, 2018-12-05
 在执行构建之前，先确保当前环境已经安装了以下软件：
 
 - *JAVA* +
-版本 6，且正确设置了 JAVA_HOME， PATH 环境变量。
+版本 6(及以上)，且正确设置了 JAVA_HOME， PATH 环境变量。
 
 - *Maven* +
 版本 3
@@ -69,7 +69,7 @@ cd $PROJECT
 ----
 mvn package
 ----
-执行成功后，在 `$PROJECT/target` 下会生成 `sms-assist-1.0-SNAPSHOT.jar`。
+执行成功后，在 `$PROJECT/target` 下会生成 `xxx-1.0-SNAPSHOT.jar`。
 
 === 部署
 
@@ -86,10 +86,10 @@ mvn package
 mkdir -p $ARTIFACT
 ----
 
-- 将 `sms-assist-1.0-SNAPSHOT.jar` 拷贝到 $ARTIFACT
+- 将 `xxx-1.0-SNAPSHOT.jar` 拷贝到 $ARTIFACT
 [source,shell]
 ----
-cp $PROJECT/target/sms-assist-1.0-SNAPSHOT.jar $ARTIFACT
+cp $PROJECT/target/xxx-1.0-SNAPSHOT.jar $ARTIFACT
 ----
 
 - 将工程中的配置文件拷贝到部署目录
@@ -108,7 +108,7 @@ mkdir $ARTIFACT/log
 ----
 ├── config
 │   └── application.properties    # 模块运行时的配置文件
-└── sms-assist-1.0-SNAPSHOT.jar   # 构建生成的 jar 包
+└── xxx-1.0-SNAPSHOT.jar   # 构建生成的 jar 包
 ----
 
 ==== 修改配置文件
@@ -116,10 +116,9 @@ mkdir $ARTIFACT/log
 打开 `$ARTIFACT/config/application.properties` 文件，做相应修改：
 ----
 server.port=2333
-spring.dataSource.url=jdbc:db2://10.10.13.13:50000/TEST:currentSchema=TEST;
-spring.dataSource.username=db2inst1
-spring.dataSource.password=admin123
-adapter.url=http://10.10.13.17:9090/sendSmg,http://10.10.13.17:9090/sendSmg
+spring.dataSource.url=jdbc:mysql://localhost:3306/test?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+spring.dataSource.username=test
+spring.dataSource.password=test
 logging.path=/data/test/log/
 ----
 
@@ -166,7 +165,7 @@ cd $ARTIFACT
 - 执行启动命令
 [source,shell]
 ----
-nohup java -jar sms-assist-1.0-SNAPSHOT.jar >/dev/null 2>&1 &
+nohup java -jar xxx-1.0-SNAPSHOT.jar >/dev/null 2>&1 &
 ----
 TIP: 建议在 $ARTIFACT 目录下创建一个 startup.sh 脚本，将上面的命令写进去，这样启动就更方便了。
 
