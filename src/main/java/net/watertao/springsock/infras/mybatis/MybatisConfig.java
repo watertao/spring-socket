@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(basePackages = {"com.htsec.smsassist.mapper"})
+@MapperScan(basePackages = {"com.mycompany.myapp.mapper"})
 public class MybatisConfig {
 
     @Autowired
